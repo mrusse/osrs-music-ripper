@@ -7,19 +7,22 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from chromedriver_py import binary_path
 
+chrome_options = webdriver.ChromeOptions()
+#chrome_options.add_argument('--headless=new')
+
 svc = webdriver.ChromeService(executable_path=binary_path)
-driver = webdriver.Chrome(service=svc)
+driver = webdriver.Chrome(service=svc, options=chrome_options)
 
 driver.get("https://oldschool.runescape.wiki/w/Music")
 actionChains = ActionChains(driver)
 wait = WebDriverWait(driver, 30)
-i = 760
+i = 1
 
 links = []
+print("Loading Song Links...")
 
 while (True):
     try:
-        print(i)
         play = wait.until(EC.visibility_of_element_located((By.XPATH,"/html/body/div[3]/div[3]/div[5]/div[1]/table[3]/tbody/tr[" + str(i) + "]/td[5]/a")))
         text = play.get_dom_attribute("href")
         links.append("https://oldschool.runescape.wiki" + text)
