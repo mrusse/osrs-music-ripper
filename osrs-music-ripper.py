@@ -23,6 +23,7 @@ print("Loading Song Links...")
 
 while (True):
     try:
+        print(i)
         play = wait.until(EC.visibility_of_element_located((By.XPATH,"/html/body/div[3]/div[3]/div[5]/div[1]/table[3]/tbody/tr[" + str(i) + "]/td[5]/a")))
         text = play.get_dom_attribute("href")
         links.append("https://oldschool.runescape.wiki" + text)
@@ -30,6 +31,8 @@ while (True):
     except Exception as e:
         #print(e)
         break
+
+print("Downloading Songs...")
 
 for link in links:
     print(link)
