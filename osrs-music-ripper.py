@@ -1,4 +1,3 @@
-import time
 import urllib.request
 from tqdm import tqdm
 from selenium import webdriver
@@ -25,17 +24,19 @@ links = []
 hrefs = driver.find_elements(By.LINK_TEXT, "Play track")
 
 for href in (bar := tqdm(hrefs, desc = "Downloading: ", bar_format='{desc}{percentage:3.0f}% |{bar}| {n_fmt}/{total_fmt}')):
-    song = href.get_dom_attribute("href").split("File:")[1]
-    link = "https://oldschool.runescape.wiki/images/" + song
-    bar.set_description("Downloading Song - " + song)
+    title = href.get_dom_attribute("href").split("File:")[1]
+    link = "https://oldschool.runescape.wiki/images/" + title
 
+    title = urllib.parse.unquote(title)
+    bar.set_description("Downloading Song - " + str(title))
+    
     req = Request(
         url=link, 
         headers={'User-Agent': 'Mozilla/5.0'}
     )
 
     oggfile = urlopen(req)
-    with open("music\\"+song.replace('%27',"'"),'wb') as output:
+    with open("music\\" + str(title),'wb') as output:
         output.write(oggfile.read())
 
 driver.quit()
