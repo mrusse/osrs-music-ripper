@@ -1,4 +1,5 @@
 import time
+import urllib.request
 from tqdm import tqdm
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -6,9 +7,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
 from chromedriver_py import binary_path
+from urllib.request import Request, urlopen
 
 chrome_options = webdriver.ChromeOptions()
 #chrome_options.add_argument('--headless=new')
+chrome_options.add_argument('log-level=3')
 chrome_options.page_load_strategy = 'eager'
 
 svc = webdriver.ChromeService(executable_path=binary_path)
@@ -21,24 +24,18 @@ wait = WebDriverWait(driver, 10)
 links = []
 hrefs = driver.find_elements(By.LINK_TEXT, "Play track")
 
-for href in tqdm(hrefs, desc="Gathering Song Links: ", bar_format='{desc}{percentage:3.0f}% |{bar}| {n_fmt}/{total_fmt}'):
-    links.append("https://oldschool.runescape.wiki" + href.get_dom_attribute("href"))
+for href in (bar := tqdm(hrefs, desc = "Downloading: ", bar_format='{desc}{percentage:3.0f}% |{bar}| {n_fmt}/{total_fmt}')):
+    song = href.get_dom_attribute("href").split("File:")[1]
+    link = "https://oldschool.runescape.wiki/images/" + song
+    bar.set_description("Downloading Song - " + song)
 
-song_links = tqdm(links, bar_format='{desc}{percentage:3.0f}% |{bar}| {n_fmt}/{total_fmt}')
+    req = Request(
+        url=link, 
+        headers={'User-Agent': 'Mozilla/5.0'}
+    )
 
-for link in song_links:
-    song_links.set_description("Downloading Song - " + link.split("File:")[1])
-    driver.get(link)
+    oggfile = urlopen(req)
+    with open("Music\\"+song,'wb') as output:
+        output.write(oggfile.read())
 
-    while(True):
-        try:
-            download = wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body/div[3]/div[3]/div[5]/div[2]/p/a[2]")))
-            break
-        except:
-            driver.refresh()
-            continue
-
-    download.click()
-
-time.sleep(5)
 driver.quit()
