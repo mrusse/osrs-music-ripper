@@ -1,34 +1,24 @@
-import urllib.request
+import requests
+from bs4 import BeautifulSoup
 from tqdm import tqdm
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver import ActionChains
-from chromedriver_py import binary_path
+from urllib.request import unquote
 from urllib.request import Request, urlopen
 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument('--headless=new')
-chrome_options.add_argument('log-level=3')
-chrome_options.page_load_strategy = 'eager'
+response = requests.get("https://oldschool.runescape.wiki/w/Music")
+response.raise_for_status()
 
-svc = webdriver.ChromeService(executable_path=binary_path)
-driver = webdriver.Chrome(service=svc, options=chrome_options)
+soup = BeautifulSoup(response.content, 'html.parser')
 
-driver.get("https://oldschool.runescape.wiki/w/Music")
-actionChains = ActionChains(driver)
-wait = WebDriverWait(driver, 10)
-
-links = []
-hrefs = driver.find_elements(By.LINK_TEXT, "Play track")
+hrefs = soup.find_all('a', href=True)
+hrefs = [link['href'] for link in hrefs if link['href'].endswith('.ogg')]
+title_max_length = len(max(hrefs, key = len).split("File:")[1])
 
 for href in (bar := tqdm(hrefs, desc = "Downloading: ", bar_format='{desc}{percentage:3.0f}% |{bar}| {n_fmt}/{total_fmt}')):
-    title = href.get_dom_attribute("href").split("File:")[1]
+    title = href.split("File:")[1]
     link = "https://oldschool.runescape.wiki/images/" + title
 
-    title = urllib.parse.unquote(title)
-    bar.set_description("Downloading Song - " + str(title))
+    title = unquote(title)
+    bar.set_description("Downloading Song - " + str(title).ljust(title_max_length))
     
     req = Request(
         url=link, 
@@ -38,5 +28,3 @@ for href in (bar := tqdm(hrefs, desc = "Downloading: ", bar_format='{desc}{perce
     oggfile = urlopen(req)
     with open("music\\" + str(title),'wb') as output:
         output.write(oggfile.read())
-
-driver.quit()
