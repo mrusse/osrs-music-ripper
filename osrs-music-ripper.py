@@ -24,7 +24,7 @@ hrefs = driver.find_elements(By.LINK_TEXT, "Play track")
 for href in tqdm(hrefs, desc="Gathering Song Links: ", bar_format='{desc}{percentage:3.0f}% |{bar}| {n_fmt}/{total_fmt}'):
     links.append("https://oldschool.runescape.wiki" + href.get_dom_attribute("href"))
 
-song_links = tqdm(links, desc="Downloading Song: ", bar_format='{desc}{percentage:3.0f}% |{bar}| {n_fmt}/{total_fmt}')
+song_links = tqdm(links, bar_format='{desc}{percentage:3.0f}% |{bar}| {n_fmt}/{total_fmt}')
 
 for link in song_links:
     song_links.set_description("Downloading Song - " + link.split("File:")[1])
