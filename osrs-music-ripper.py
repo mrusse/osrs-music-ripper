@@ -10,7 +10,7 @@ from chromedriver_py import binary_path
 from urllib.request import Request, urlopen
 
 chrome_options = webdriver.ChromeOptions()
-#chrome_options.add_argument('--headless=new')
+chrome_options.add_argument('--headless=new')
 chrome_options.add_argument('log-level=3')
 chrome_options.page_load_strategy = 'eager'
 
@@ -35,7 +35,7 @@ for href in (bar := tqdm(hrefs, desc = "Downloading: ", bar_format='{desc}{perce
     )
 
     oggfile = urlopen(req)
-    with open("Music\\"+song,'wb') as output:
+    with open("music\\"+song.replace('%27',"'"),'wb') as output:
         output.write(oggfile.read())
 
 driver.quit()
