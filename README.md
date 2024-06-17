@@ -5,7 +5,7 @@ Python script to scrape every song from: [https://oldschool.runescape.wiki/w/Mus
 
 # Setup
 
-Install the requirments
+Install the requirments:
 ```
 pip install -r requirements.txt
 ```
